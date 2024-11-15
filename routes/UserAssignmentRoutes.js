@@ -38,8 +38,8 @@ router.post('/assign-user', verifyToken, checkRole('admin'), async (req, res) =>
         }
 
         // Update user with multiple divisions
-        user.divisions = divisionIds;  
-        user.ou = ouId;  
+        user.divisions = divisionIds;  // Assign multiple divisions to the user
+        user.ou = ouId;  // Assign the OU
         user.divisionPasswords = divisionIds.map((divisionId) => ({
             division: divisionId,
             password: 'defaultPassword',  // Set or fetch a specific password for each division
@@ -112,6 +112,26 @@ router.put('/change-role', verifyToken, checkRole('admin'), async (req, res) => 
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
+    }
+});
+
+router.get('/divisions/:ouId', async (req, res) => {
+    const { ouId } = req.params; // Get the ouId from the request parameters
+
+    try {
+        // Find divisions where the 'ou' field matches the provided ouId
+        const divisions = await Division.find({ ou: ouId });
+
+        // If no divisions are found for this ouId, return a 404
+        if (!divisions || divisions.length === 0) {
+            return res.status(404).json({ message: 'No divisions found for this OU' });
+        }
+
+        // Return the divisions if found
+        res.status(200).json({ divisions });
+    } catch (error) {
+        // Handle any errors and return a 500 status
+        res.status(500).json({ message: 'Error fetching divisions', error });
     }
 });
 
