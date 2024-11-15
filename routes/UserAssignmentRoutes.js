@@ -38,8 +38,8 @@ router.post('/assign-user', verifyToken, checkRole('admin'), async (req, res) =>
         }
 
         // Update user with multiple divisions
-        user.divisions = divisionIds;  // Assign multiple divisions to the user
-        user.ou = ouId;  // Assign the OU
+        user.divisions = divisionIds;  
+        user.ou = ouId;  
         user.divisionPasswords = divisionIds.map((divisionId) => ({
             division: divisionId,
             password: 'defaultPassword',  // Set or fetch a specific password for each division
