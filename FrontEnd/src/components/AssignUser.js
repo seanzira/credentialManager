@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const AssignUser = () => {
     const [username, setUsername] = useState('');
-    const [divisionIds, setDivisionIds] = useState([]);  // Change to array to support multiple divisions
+    const [divisionIds, setDivisionIds] = useState([]);  
     const [ouId, setOuId] = useState('');
     const [divisions, setDivisions] = useState([]);
     const [ous, setOus] = useState([]);
