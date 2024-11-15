@@ -4,6 +4,11 @@ import Division from '../models/Division.js';
 import Ou from '../models/Ou.js';  
 import bcrypt from 'bcryptjs';
 
+import dotenv from 'dotenv'; // Import dotenv
+
+// Load environment variables from .env file
+dotenv.config();
+
 // Sample data to be inserted into the Credential collection
 const sampleCredentials = [
     { username: 'john_doe', password: 'password123', service: 'Email' },
@@ -17,7 +22,13 @@ const sampleCredentials = [
 // Establishing a connection with the MongoDB database
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://localhost:27017/managing-credentials', {
+        // Use the MONGODB_URI environment variable from the .env file
+        const MONGODB_URI = process.env.MONGODB_URI;
+        if (!MONGODB_URI) {
+            throw new Error('MONGODB_URI is not defined in the .env file');
+        }
+        
+        await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
