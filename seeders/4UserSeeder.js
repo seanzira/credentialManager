@@ -9,7 +9,7 @@ const sampleUsers = [
         password: 'adminPassword123',
         role: 'admin',
         ou: '672c9a523d84e69021b1706b', 
-        divisions: ['672c9a53329391a0e27ebe54'], // Array of divisions
+        divisions: ['672c9a53329391a0e27ebe54'], 
         divisionPasswords: [
             { division: '672c9a53329391a0e27ebe54', password: 'adminPassword123' }
         ]
