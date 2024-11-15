@@ -16,7 +16,7 @@ const Register = () => {
     const [divisions, setDivisions] = useState([]);  
     const navigate = useNavigate();
 
-    // Fetch OUs and Divisions when the component mounts
+    // Fetch OUs when the component mounts
     useEffect(() => {
         const fetchOUs = async () => {
             try {
@@ -27,20 +27,28 @@ const Register = () => {
                 setMessage(error.response?.data?.message || 'Error fetching OUs');
             }
         };
-        
-        const fetchDivisions = async () => {
-            try {
-                const response = await axios.get('http://localhost:3001/api/user-assignment/divisions'); 
-                console.log(response.data); 
-                setDivisions(response.data.divisions);  
-            } catch (error) {
-                setMessage(error.response?.data?.message || 'Error fetching divisions');
-            }
-        };
 
         fetchOUs();
-        fetchDivisions();
     }, []);
+
+    // Fetch divisions when OU is selected
+    useEffect(() => {
+        if (ou) {  // Only fetch divisions if OU is selected
+            const fetchDivisions = async () => {
+                try {
+                    const response = await axios.get(`http://localhost:3001/api/user-assignment/divisions/${ou}`); 
+                    console.log(response.data); 
+                    setDivisions(response.data.divisions);  
+                } catch (error) {
+                    setMessage(error.response?.data?.message || 'Error fetching divisions');
+                }
+            };
+
+            fetchDivisions();
+        } else {
+            setDivisions([]);  // Reset divisions if no OU is selected
+        }
+    }, [ou]);  // This effect runs when the selected OU changes
 
     // Handle registration when the button is clicked
     const handleRegister = async (e) => {
