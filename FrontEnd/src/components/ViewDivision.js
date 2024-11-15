@@ -73,7 +73,12 @@ const ViewDivision = () => {
                     <ul>
                         {credentials.map((credential) => (
                             <li key={credential._id} style={{ marginBottom: '10px' }}>
-                                <strong>Username: </strong>{credential.username}
+                                <div>
+                                    <strong>Username: </strong>{credential.username}
+                                </div>
+                                <div>
+                                    <strong>Service Type: </strong>{credential.service || 'Not specified'}
+                                </div>
                             </li>
                         ))}
                     </ul>
