@@ -3,26 +3,42 @@ import axios from 'axios';
 
 const AssignUser = () => {
     const [username, setUsername] = useState('');
-    const [divisionIds, setDivisionIds] = useState([]);  
+    const [divisionIds, setDivisionIds] = useState([]); // Support for multiple divisions
     const [ouId, setOuId] = useState('');
     const [divisions, setDivisions] = useState([]);
     const [ous, setOus] = useState([]);
 
-    // Fetch Divisions and OUs when the component mounts
+    // Fetch OUs when the component mounts
     useEffect(() => {
-        const fetchDivisionsAndOUs = async () => {
+        const fetchOUs = async () => {
             try {
-                const divisionResponse = await axios.get('http://localhost:3001/api/user-assignment/divisions');
-                const ouResponse = await axios.get('http://localhost:3001/api/user-assignment/ou-list');
-                setDivisions(divisionResponse.data.divisions);
-                setOus(ouResponse.data.ous);
+                const response = await axios.get('http://localhost:3001/api/user-assignment/ou-list');
+                setOus(response.data.ous);
             } catch (error) {
-                console.error('Error fetching divisions or OUs:', error.message);
+                console.error('Error fetching OUs:', error.message);
             }
         };
 
-        fetchDivisionsAndOUs();
+        fetchOUs();
     }, []);
+
+    // Fetch divisions when OU is selected
+    useEffect(() => {
+        if (ouId) {
+            const fetchDivisions = async () => {
+                try {
+                    const response = await axios.get(`http://localhost:3001/api/user-assignment/divisions/${ouId}`);
+                    setDivisions(response.data.divisions);
+                } catch (error) {
+                    console.error('Error fetching divisions:', error.message);
+                }
+            };
+
+            fetchDivisions();
+        } else {
+            setDivisions([]); // Reset divisions if no OU is selected
+        }
+    }, [ouId]); // Run this effect when `ouId` changes
 
     // Function to handle assigning the user
     const handleAssignUser = async () => {
@@ -37,6 +53,7 @@ const AssignUser = () => {
             );
 
             alert(response.data.message); // Display success message
+
             // Clear input fields after success
             setUsername('');
             setDivisionIds([]);
@@ -64,9 +81,13 @@ const AssignUser = () => {
                 onChange={(e) => setDivisionIds([...e.target.selectedOptions].map(option => option.value))}
             >
                 <option value="">Select Divisions</option>
-                {divisions.map(division => (
-                    <option key={division._id} value={division._id}>{division.name}</option>
-                ))}
+                {divisions.length > 0 ? (
+                    divisions.map(division => (
+                        <option key={division._id} value={division._id}>{division.name}</option>
+                    ))
+                ) : (
+                    <option disabled>No divisions available</option>
+                )}
             </select>
 
             {/* OU Selection */}
@@ -75,9 +96,13 @@ const AssignUser = () => {
                 onChange={(e) => setOuId(e.target.value)}
             >
                 <option value="">Select OU</option>
-                {ous.map(ou => (
-                    <option key={ou._id} value={ou._id}>{ou.name}</option>
-                ))}
+                {ous.length > 0 ? (
+                    ous.map(ou => (
+                        <option key={ou._id} value={ou._id}>{ou.name}</option>
+                    ))
+                ) : (
+                    <option disabled>No OUs available</option>
+                )}
             </select>
 
             <button onClick={handleAssignUser}>Assign User</button>
