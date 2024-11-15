@@ -46,7 +46,7 @@ To set up the application on your local machine, follow these steps:
    Create a .env file in the root of the project's directory to configure your        environment settings. This might include adding:
    ```bash
    PORT:3001
-   DATABASE_URL=your_database_url
+   MONGODB_URI=your_database_url
    JWT_SECRET=FfrRdz72tKrsmgFAj8WXrIJw8e5v1bad
 5. **Seed the database**
    To seed the database, you might need to run a seeding script, to which you can 
