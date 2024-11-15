@@ -43,9 +43,9 @@ router.post('/register', async (req, res) => {
         const newUser = new User({
             username,
             password: hashedPassword,
-            ou: organizationalUnit._id,  // Save the OU reference
-            divisions: [divisionRecord._id],  // Assuming the user can belong to multiple divisions, here we assign one
-            role: 'normal',  // Default role, modify this as per your use case
+            ou: organizationalUnit._id,  
+            divisions: [divisionRecord._id],  
+            role: 'normal',  
         });
 
         // Save the new user
