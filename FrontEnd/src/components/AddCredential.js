@@ -13,7 +13,7 @@ const AddCredential = () => {
     const [divisions, setDivisions] = useState([]);  
     const [ous, setOus] = useState([]); 
 
-    // Fetch OUs and Divisions from the backend on component mount
+    // Fetch OUs when the component mounts
     useEffect(() => {
         const fetchOUs = async () => {
             try {
@@ -29,9 +29,19 @@ const AddCredential = () => {
             }
         };
 
+        fetchOUs();
+    }, []); // Only fetch OUs once on mount
+
+    // Fetch divisions when the selected OU changes
+    useEffect(() => {
         const fetchDivisions = async () => {
+            if (!ou) {
+                setDivisions([]); // Reset divisions if no OU is selected
+                return;
+            }
+
             try {
-                const response = await axios.get('http://localhost:3001/api/user-assignment/divisions');
+                const response = await axios.get(`http://localhost:3001/api/user-assignment/divisions/${ou}`);
                 if (Array.isArray(response.data.divisions)) {
                     setDivisions(response.data.divisions); 
                 } else {
@@ -43,9 +53,8 @@ const AddCredential = () => {
             }
         };
 
-        fetchOUs();
         fetchDivisions();
-    }, []);
+    }, [ou]); // This effect runs whenever the OU changes
 
     // Handle the addition of a credential
     const handleAddCredential = async () => {
