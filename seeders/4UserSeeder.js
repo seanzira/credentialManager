@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv'; // Import dotenv
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Sample data to be inserted into the collection
 const sampleUsers = [
@@ -8,60 +12,60 @@ const sampleUsers = [
         username: 'admin_user',
         password: 'adminPassword123',
         role: 'admin',
-        ou: '672c9a523d84e69021b1706b', 
-        divisions: ['672c9a53329391a0e27ebe54'], 
+        ou: '6736f7871c116aace7d0dddb', 
+        divisions: ['6731a9a5e64a2811b2e4245f'], 
         divisionPasswords: [
-            { division: '672c9a53329391a0e27ebe54', password: 'adminPassword123' }
+            { division: '6731a9a5e64a2811b2e4245f', password: 'adminPassword123' }
         ]
     },
     {
         username: 'management_user',
         password: 'managementPassword456',
         role: 'management',
-        ou: '672c9a523d84e69021b1706c', 
-        divisions: ['672c9a53329391a0e27ebe55'],
+        ou: '6736f7871c116aace7d0dddb', 
+        divisions: ['6731a9a5e64a2811b2e42461'],
         divisionPasswords: [
-            { division: '672c9a53329391a0e27ebe55', password: 'managementPassword456' }
+            { division: '6731a9a5e64a2811b2e42461', password: 'managementPassword456' }
         ]
     },
     {
         username: 'normal_user1',
         password: 'userPassword789',
         role: 'normal',
-        ou: '672c9a523d84e69021b1706d', 
-        divisions: ['672c9a53329391a0e27ebe56'],
+        ou: '6736f7871c116aace7d0ddde', 
+        divisions: ['6731a9a5e64a2811b2e42462'],
         divisionPasswords: [
-            { division: '672c9a53329391a0e27ebe56', password: 'userPassword789' }
+            { division: '6731a9a5e64a2811b2e42462', password: 'userPassword789' }
         ]
     },
     {
         username: 'normal_user2',
         password: 'userPassword101',
         role: 'normal',
-        ou: '672c9a523d84e69021b1706e', 
-        divisions: ['672c9a53329391a0e27ebe57'],
+        ou: '6736f7871c116aace7d0dddd', 
+        divisions: ['6731a9a5e64a2811b2e42463'],
         divisionPasswords: [
-            { division: '672c9a53329391a0e27ebe57', password: 'userPassword101' }
+            { division: '6731a9a5e64a2811b2e42463', password: 'userPassword101' }
         ]
     },
     {
         username: 'normal_user3',
         password: 'userPassword2023',
         role: 'normal',
-        ou: '672c9a523d84e69021b1706f', 
-        divisions: ['672c9a53329391a0e27ebe58'],
+        ou: '6736f7871c116aace7d0dddc', 
+        divisions: ['6734ac8e40394c383ffb57ee'],
         divisionPasswords: [
-            { division: '672c9a53329391a0e27ebe58', password: 'userPassword2023' }
+            { division: '6734ac8e40394c383ffb57ee', password: 'userPassword2023' }
         ]
     },
     {
         username: 'seanzira',
         password: 'seanzira22!',
         role: 'admin',
-        ou: '672c9a523d84e69021b1706f', 
-        divisions: ['672c9a53329391a0e27ebe58'],
+        ou: '6736f7871c116aace7d0dddb', 
+        divisions: ['6736f788f16058dadee74a49'],
         divisionPasswords: [
-            { division: '672c9a53329391a0e27ebe58', password: 'seanzira22!' }
+            { division: '6736f788f16058dadee74a49', password: 'seanzira22!' }
         ]
     },
 ];
@@ -69,7 +73,13 @@ const sampleUsers = [
 // Establishing a connection with the MongoDB database
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://localhost:27017/managing-credentials', {
+        // Use the MONGODB_URI environment variable from the .env file
+        const MONGODB_URI = process.env.MONGODB_URI;
+        if (!MONGODB_URI) {
+            throw new Error('MONGODB_URI is not defined in the .env file');
+        }
+
+        await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
