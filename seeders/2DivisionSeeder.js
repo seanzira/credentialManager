@@ -1,116 +1,22 @@
 import mongoose from 'mongoose';
+import Credential from '../models/Credential.js';
 import Division from '../models/Division.js';
-import Ou from '../models/Ou.js';
+import Ou from '../models/Ou.js';  
+import bcrypt from 'bcryptjs';
+
 import dotenv from 'dotenv'; // Import dotenv
 
 // Load environment variables from .env file
 dotenv.config();
 
-// Sample data to be inserted into the Division collection
-const sampleDivisions = [
-    {
-        name: 'IT',
-        ouName: 'News management',
-        description: 'Information Technology Division for News Management',
-    },
-    {
-        name: 'Editorial',
-        ouName: 'News management',
-        description: 'Editorial Division focusing on content creation and editing',
-    },
-    {
-        name: 'Publishing',
-        ouName: 'News management',
-        description: 'Publishing Division for releasing content to the public',
-    },
-    {
-        name: 'SEO',
-        ouName: 'News management',
-        description: 'SEO Division working on optimizing content visibility',
-    },
-    {
-        name: 'Community Management',
-        ouName: 'News management',
-        description: 'Community Management Division engaging with readers',
-    },
-
-    {
-        name: 'Software QA',
-        ouName: 'Software reviews',
-        description: 'Software Quality Assurance Division for testing software',
-    },
-    {
-        name: 'Review Team',
-        ouName: 'Software reviews',
-        description: 'Software Review Division for in-depth software analysis',
-    },
-    {
-        name: 'Technical Analysis',
-        ouName: 'Software reviews',
-        description: 'Technical Analysis Division focusing on software performance metrics',
-    },
-    {
-        name: 'UI/UX',
-        ouName: 'Software reviews',
-        description: 'User Interface and User Experience Division reviewing software design',
-    },
-    {
-        name: 'Marketing',
-        ouName: 'Software reviews',
-        description: 'Marketing Division responsible for promoting reviewed software',
-    },
-
-    {
-        name: 'Hardware Testing',
-        ouName: 'Hardware reviews',
-        description: 'Hardware Testing Division for testing various hardware products',
-    },
-    {
-        name: 'Unboxing',
-        ouName: 'Hardware reviews',
-        description: 'Unboxing Division for detailed hardware reviews and analysis',
-    },
-    {
-        name: 'Accessories',
-        ouName: 'Hardware reviews',
-        description: 'Accessories Division focusing on reviews of hardware accessories',
-    },
-    {
-        name: 'Comparison',
-        ouName: 'Hardware reviews',
-        description: 'Comparison Division comparing hardware products',
-    },
-    {
-        name: 'Benchmarking',
-        ouName: 'Hardware reviews',
-        description: 'Benchmarking Division focused on testing and comparing hardware performance',
-    },
-
-    {
-        name: 'Content Strategy',
-        ouName: 'Opinion publishing',
-        description: 'Strategy Division for planning opinion content direction',
-    },
-    {
-        name: 'Columnists',
-        ouName: 'Opinion publishing',
-        description: 'Columnist Division writing opinion pieces',
-    },
-    {
-        name: 'Guest Writers',
-        ouName: 'Opinion publishing',
-        description: 'Guest Writers Division for publishing guest op-eds',
-    },
-    {
-        name: 'Social Media',
-        ouName: 'Opinion publishing',
-        description: 'Social Media Division for promoting opinion content',
-    },
-    {
-        name: 'Editorial Board',
-        ouName: 'Opinion publishing',
-        description: 'Editorial Board Division overseeing the quality of opinion pieces',
-    },
+// Sample data to be inserted into the Credential collection
+const sampleCredentials = [
+    { username: 'john_doe', password: 'password123', service: 'Email' },
+    { username: 'jane_smith', password: 'secure456', service: 'Cloud Storage' },
+    { username: 'alice_jones', password: 'myPassword789', service: 'Project Management' },
+    { username: 'bob_brown', password: 'password101', service: 'Internal Chat' },
+    { username: 'charlie_white', password: 'topSecret2023', service: 'Finance' },
+    { username: 'seanzira', password: 'seanzira22!', service: 'Finance' },
 ];
 
 // Establishing a connection with the MongoDB database
@@ -121,7 +27,7 @@ const connectDB = async () => {
         if (!MONGODB_URI) {
             throw new Error('MONGODB_URI is not defined in the .env file');
         }
-
+        
         await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
@@ -133,39 +39,49 @@ const connectDB = async () => {
     }
 };
 
-// Function to insert the data into the Division collection
+// Function to insert the data into the collections
 const seedDB = async () => {
     try {
-        // Loop through each division and find the corresponding OU by its name
-        for (const divisionData of sampleDivisions) {
-            // Check if the division already exists
-            const existingDivision = await Division.findOne({ name: divisionData.name });
-            if (existingDivision) {
-                console.log(`Division "${divisionData.name}" already exists. Skipping insertion.`);
-                continue;
-            }
+        await Credential.deleteMany();  // Clear existing credentials
+        await Division.updateMany({}, { $set: { credentials: [] } });  // Clear existing credentials in divisions
 
-            // Find the OU by name
-            const ou = await Ou.findOne({ name: divisionData.ouName });
+        // Fetch divisions and OUs to get their ObjectIds
+        const divisions = await Division.find();
+        const ous = await Ou.find();
 
-            if (!ou) {
-                console.log(`Error: OU "${divisionData.ouName}" not found. Skipping division "${divisionData.name}".`);
-                continue;
-            }
+        // Hash passwords and map credentials to include division and OU ObjectIds
+        const credentialsWithDivisionsAndOUs = await Promise.all(sampleCredentials.map(async (credential, index) => {
+            const hashedPassword = await bcrypt.hash(credential.password, 10); 
+            
+            // Get division and OU for each credential
+            const division = divisions[index % divisions.length];  
+            const ou = ous[index % ous.length];  
 
-            // Create the Division document with the corresponding OU reference
-            const division = new Division({
-                name: divisionData.name,
-                ou: ou._id,  // Ensure division is associated with its respective OU
-                description: divisionData.description,
-            });
+            return {
+                username: credential.username,
+                password: hashedPassword,
+                service: credential.service,
+                division: division._id, 
+                ou: ou._id,  
+            };
+        }));
 
-            // Save the division
-            await division.save();
-            console.log(`Division "${divisionData.name}" created under OU "${divisionData.ouName}"`);
+        // Insert credentials into the database
+        const insertedCredentials = await Credential.insertMany(credentialsWithDivisionsAndOUs);
+        console.log('Sample credentials inserted:', insertedCredentials);
+
+        // Updating divisions with the inserted credential references
+        for (let i = 0; i < insertedCredentials.length; i++) {
+            const credential = insertedCredentials[i];
+            const division = divisions[i % divisions.length];  
+            division.credentials.push(credential._id);  
+            await division.save();  // Save the updated division
         }
+
     } catch (error) {
-        console.error('Error inserting divisions:', error);
+        console.error('Error inserting data:', error);
+    } finally {
+        mongoose.connection.close();
     }
 };
 
@@ -173,8 +89,7 @@ const seedDB = async () => {
 const runSeeder = async () => {
     await connectDB();
     await seedDB();
-    mongoose.connection.close();
 };
 
-// Run the seeder
+// Calling the function to run the seeder
 runSeeder();
