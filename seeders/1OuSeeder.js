@@ -1,34 +1,40 @@
 import mongoose from 'mongoose';
 import Ou from '../models/Ou.js';
+import dotenv from 'dotenv'; // Import dotenv
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Sample data to be inserted into the collection
 const sampleOUs = [
     {
-        name: 'Corporate',
-        description: 'Corporate office for company operations',
+        name: 'News management',
+        description: 'Unit responsible for managing news content and editorial processes.',
     },
     {
-        name: 'Regional',
-        description: 'Regional offices managing local operations',
+        name: 'Software reviews',
+        description: 'Unit dedicated to reviewing and testing software products.',
     },
     {
-        name: 'Research and Development',
-        description: 'Department focused on innovation and development',
+        name: 'Hardware reviews',
+        description: 'Unit responsible for reviewing and testing hardware products.',
     },
     {
-        name: 'Customer Support',
-        description: 'Team dedicated to assisting customers and resolving issues',
-    },
-    {
-        name: 'Human Resources',
-        description: 'Department handling employee relations and benefits',
+        name: 'Opinion publishing',
+        description: 'Unit focused on publishing opinions, editorials, and reviews.',
     },
 ];
 
 // Establishing a connection with the MongoDB database
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://localhost:27017/managing-credentials', {
+        // Use the MONGODB_URI environment variable from the .env file
+        const MONGODB_URI = process.env.MONGODB_URI;
+        if (!MONGODB_URI) {
+            throw new Error('MONGODB_URI is not defined in the .env file');
+        }
+
+        await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
@@ -43,8 +49,8 @@ const connectDB = async () => {
 const seedDB = async () => {
     try {
         // Clear existing data
-        await Ou.deleteMany();
-        const insertedData = await Ou.insertMany(sampleOUs);
+        await Ou.deleteMany(); // Make sure to clear the existing OUs before inserting the new ones
+        const insertedData = await Ou.insertMany(sampleOUs); // Insert the updated sample data
         console.log('Sample data inserted:', insertedData);
     } catch (error) {
         console.error('Error inserting data:', error);
