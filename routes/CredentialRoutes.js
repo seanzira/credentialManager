@@ -97,7 +97,6 @@ router.get('/user/division-credentials', verifyToken, async (req, res) => {
     }
 });
 
-
 // Endpoint to update a specific credential by ID
 router.put('/update-credential/:id', verifyToken, checkRole('management', 'admin'), async (req, res) => {
     try {
