@@ -53,7 +53,6 @@ const sampleDivisions = [
 // Establishing a connection with the MongoDB database
 const connectDB = async () => {
     try {
-        // Use the MONGODB_URI environment variable from the .env file
         const MONGODB_URI = process.env.MONGODB_URI;
         if (!MONGODB_URI) {
             throw new Error('MONGODB_URI is not defined in the .env file');
@@ -66,22 +65,22 @@ const connectDB = async () => {
         console.log('MongoDB connected');
     } catch (error) {
         console.error('MongoDB connection error:', error);
-        process.exit(1);
+        process.exit(1);  // Exit process on error
     }
 };
 
-// Function to insert the data into the Division collection
+// Function to clear existing divisions and insert the new data
 const seedDB = async () => {
     try {
+        // Clear all existing divisions
+        console.log('Clearing all existing divisions...');
+        await Division.deleteMany();  // This clears the entire Division collection
+        
+        console.log('Inserting new divisions...');
+        
         for (const divisionData of sampleDivisions) {
-            // Check if the division already exists
-            const existingDivision = await Division.findOne({ name: divisionData.name });
-
-            if (existingDivision) {
-                console.log(`Division "${divisionData.name}" already exists. Skipping insertion.`);
-                continue; // Skip to the next division
-            }
-
+            console.log(`Processing Division: ${divisionData.name}`);
+            
             // Find the OU by name
             const ou = await Ou.findOne({ name: divisionData.ouName });
 
@@ -93,7 +92,7 @@ const seedDB = async () => {
             // Create the Division document with the corresponding OU reference
             const division = new Division({
                 name: divisionData.name,
-                ou: ou._id,  // Ensure division is associated with its respective OU
+                ou: ou._id,  // Reference the correct OU
                 description: divisionData.description,
             });
 
@@ -109,9 +108,9 @@ const seedDB = async () => {
 // Function to run the seeder
 const runSeeder = async () => {
     try {
-        // Connect to the database
+        // First, connect to the database
         await connectDB();
-        
+
         // Seed the divisions
         await seedDB();
     } catch (error) {
