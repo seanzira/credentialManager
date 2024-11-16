@@ -125,19 +125,6 @@ const AddCredential = () => {
                 onChange={(e) => setService(e.target.value)} 
             />
             <select 
-                value={division} 
-                onChange={(e) => setDivision(e.target.value)}
-            >
-                <option value="">Select Division</option>
-                {Array.isArray(divisions) && divisions.length > 0 ? (
-                    divisions.map((div) => (
-                        <option key={div._id} value={div._id}>{div.name}</option>
-                    ))
-                ) : (
-                    <option disabled>No Divisions available</option>
-                )}
-            </select>
-            <select 
                 value={ou} 
                 onChange={(e) => setOu(e.target.value)}
             >
@@ -148,6 +135,19 @@ const AddCredential = () => {
                     ))
                 ) : (
                     <option disabled>No Organizational Units available</option>
+                )}
+            </select>
+            <select 
+                value={division} 
+                onChange={(e) => setDivision(e.target.value)}
+            >
+                <option value="">Select Division</option>
+                {Array.isArray(divisions) && divisions.length > 0 ? (
+                    divisions.map((div) => (
+                        <option key={div._id} value={div._id}>{div.name}</option>
+                    ))
+                ) : (
+                    <option disabled>No Divisions available</option>
                 )}
             </select>
             <button onClick={handleAddCredential}>Add Credential</button>
