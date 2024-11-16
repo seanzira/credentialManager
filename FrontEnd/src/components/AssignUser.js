@@ -74,6 +74,21 @@ const AssignUser = () => {
                 onChange={(e) => setUsername(e.target.value)}
             />
 
+            {/* OU Selection */}
+            <select
+                value={ouId}
+                onChange={(e) => setOuId(e.target.value)}
+            >
+                <option value="">Select OU</option>
+                {ous.length > 0 ? (
+                    ous.map(ou => (
+                        <option key={ou._id} value={ou._id}>{ou.name}</option>
+                    ))
+                ) : (
+                    <option disabled>No OUs available</option>
+                )}
+            </select>
+
             {/* Multiple Division Selection */}
             <select
                 multiple
@@ -87,21 +102,6 @@ const AssignUser = () => {
                     ))
                 ) : (
                     <option disabled>No divisions available</option>
-                )}
-            </select>
-
-            {/* OU Selection */}
-            <select
-                value={ouId}
-                onChange={(e) => setOuId(e.target.value)}
-            >
-                <option value="">Select OU</option>
-                {ous.length > 0 ? (
-                    ous.map(ou => (
-                        <option key={ou._id} value={ou._id}>{ou.name}</option>
-                    ))
-                ) : (
-                    <option disabled>No OUs available</option>
                 )}
             </select>
 
