@@ -115,22 +115,28 @@ router.put('/change-role', verifyToken, checkRole('admin'), async (req, res) => 
     }
 });
 
+// Endpoint to fetch divisions by OU ID
 router.get('/divisions/:ouId', async (req, res) => {
-    const { ouId } = req.params; // Get the ouId from the request parameters
+    const { ouId } = req.params;  // Get the OU ID from the request parameters
 
     try {
-        // Find divisions where the 'ou' field matches the provided ouId
+        // Validate if the OU exists (optional but useful for better error handling)
+        const ou = await Ou.findById(ouId);
+        if (!ou) {
+            return res.status(404).json({ message: 'OU not found' });
+        }
+
+        // Fetch divisions that are related to the OU
         const divisions = await Division.find({ ou: ouId });
 
-        // If no divisions are found for this ouId, return a 404
-        if (!divisions || divisions.length === 0) {
+        if (divisions.length === 0) {
             return res.status(404).json({ message: 'No divisions found for this OU' });
         }
 
-        // Return the divisions if found
+        // Return the divisions as a response
         res.status(200).json({ divisions });
     } catch (error) {
-        // Handle any errors and return a 500 status
+        console.error('Error fetching divisions:', error);
         res.status(500).json({ message: 'Error fetching divisions', error });
     }
 });
